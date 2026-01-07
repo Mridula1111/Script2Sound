@@ -1,0 +1,20 @@
+Feature scaling is a preprocessing technique that transforms feature values to a similar scale,
+ensuring all features contribute equally to the model. It’s essential for datasets with features of
+varying ranges, units, or magnitudes. Common techniques include standardization,
+normalization, and min-max scaling. This process improves model performance, convergence,
+and prevents bias from features with larger values.
+
+What is scaling in data analysis?
+Scaling refers to transforming the range of values for features in a dataset to a common scale,
+often between 0-1 or -1 to 1.
+
+This is an important data preparation technique in machine learning and data analysis for
+several reasons:
+1. Prevents bias from variables with larger ranges: Features with wider ranges can dominate the
+outcome of certain algorithms. Scaling puts all features on the same footing.
+2. Improves convergence of optimization algorithms: Algorithms like gradient descent converge
+faster when features are scaled.
+3. Enables use of regularization techniques: Regularization methods often assume features take
+small values. Scaling allows effective use of techniques like L1 and L2 regularization.
+4. Standardizes data: Puts data from different sources on a common scale for meaningful
+comparison.

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import UploadNotes from "../components/UploadNotes";
 import { uploadNotes, generateScript } from "../services/api";
 
@@ -8,40 +10,61 @@ export default function GenerateScript() {
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
-    if (!file) return alert("Please upload notes");
+    if (!file) return alert("Please upload a file");
 
     setLoading(true);
-
-    try {
-      // 1. Extract text
-      const { text } = await uploadNotes(file);
-
-      // 2. Generate script
-      const { script } = await generateScript(text);
-      setScript(script);
-    } catch (err) {
-      alert("Something went wrong");
-    }
-
+    const { text } = await uploadNotes(file);
+    const { script } = await generateScript(text);
+    setScript(script);
     setLoading(false);
   };
 
   return (
-    <div style={{ maxWidth: "700px", margin: "40px auto" }}>
-      <h1>Notes → Script</h1>
+  <div className="min-h-screen flex flex-col bg-gray-100">
+    
+    {/* Header */}
+    <Navbar />
 
-      <UploadNotes onUpload={setFile} />
+    {/* Main Content */}
+    <main className="flex-grow max-w-3xl mx-auto px-6 py-10 space-y-8">
 
-      <button onClick={handleGenerate} disabled={loading}>
-        {loading ? "Generating..." : "Generate Script"}
-      </button>
+      <h1 className="text-3xl font-bold text-center">
+    Notes to Script
+      </h1>
+
+      <p className="text-center text-gray-600">
+    Upload your notes and instantly turn them into an engaging podcast script
+      </p>
+
+      <div className="bg-white p-6 rounded-xl shadow space-y-4">
+        <UploadNotes onUpload={setFile} />
+
+        <button
+          onClick={handleGenerate}
+          disabled={loading}
+          className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+        >
+          {loading ? "Generating..." : "Generate Script"}
+        </button>
+      </div>
 
       {script && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Generated Script</h3>
-          <pre style={{ whiteSpace: "pre-wrap" }}>{script}</pre>
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="font-semibold mb-3">
+            Generated Script
+          </h2>
+          <div className="max-h-96 overflow-y-auto text-sm whitespace-pre-wrap">
+            {script}
+          </div>
         </div>
       )}
-    </div>
-  );
+
+    </main>
+
+    {/* Footer */}
+    <Footer />
+  </div>
+);
+
 }
+
