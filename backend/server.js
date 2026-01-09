@@ -4,6 +4,10 @@ import multer from "multer";
 import fs from "fs";
 import dotenv from "dotenv";
 import OpenAI from "openai";
+import Tesseract from "tesseract.js";
+import { exec } from "child_process";
+import path from "path";
+import mammoth from 'mammoth';
 
 dotenv.config();
 
@@ -20,12 +24,69 @@ const openai = new OpenAI({
 });
 
 // ---- EXTRACT NOTES (TXT) ----
-app.post("/extract", upload.single("file"), (req, res) => {
+
+app.post("/extract", upload.single("file"), async (req, res) => {
   try {
-    const text = fs.readFileSync(req.file.path, "utf-8");
-    res.json({ text });
+    const filePath = req.file.path;
+    const fileType = req.file.mimetype;
+
+    let extractedText = "";
+
+    // TXT
+    if (fileType === "text/plain") {
+      extractedText = fs.readFileSync(filePath, "utf-8");
+    }
+
+    // DOCX
+    else if (
+      fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      const result = await mammoth.extractRawText({ path: filePath });
+      extractedText = result.value;
+    }
+
+    // ---------- IMAGE OCR ----------
+    else if (fileType.startsWith("image/")) {
+      const result = await Tesseract.recognize(filePath, "eng");
+      extractedText = result.data.text;
+    }
+
+    // ---------- PDF OCR ----------
+    else if (fileType === "application/pdf") {
+      const outputDir = "uploads/pdf_images";
+      if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+      // Convert PDF → images
+      await new Promise((resolve, reject) => {
+        exec(
+          `pdftoppm -png "${filePath}" "${outputDir}/page"`,
+          (error) => (error ? reject(error) : resolve())
+        );
+      });
+
+      const images = fs.readdirSync(outputDir).filter(f => f.endsWith(".png"));
+
+      for (const img of images) {
+        const result = await Tesseract.recognize(
+          path.join(outputDir, img),
+          "eng"
+        );
+        extractedText += result.data.text + "\n";
+      }
+    }
+
+    else {
+      return res.status(400).json({ error: "Unsupported file type" });
+    }
+
+    res.json({
+      text: extractedText,
+      length: extractedText.length
+    });
+
   } catch (err) {
-    res.status(500).json({ error: "Text extraction failed" });
+    console.error("OCR ERROR:", err);
+    res.status(500).json({ error: "OCR extraction failed" });
   }
 });
 

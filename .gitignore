@@ -23,3 +23,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+#Backend uploads & OCR data
+backend/uploads/
+backend/eng.traineddata
