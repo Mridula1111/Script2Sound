@@ -99,24 +99,73 @@ app.post("/script", async (req, res) => {
       model: "gpt-4o-mini",
       messages: [
         {
-          role: "system",
-          content:
-            "You are a professional podcast script writer. Convert notes into an engaging, conversational podcast script. Do not sound like notes.",
-        },
+  role: "system",
+  content: `
+You generate podcast scripts for a machine.
+
+STRICT OUTPUT RULES:
+- Output plain text only
+- One line per segment
+- NO markdown
+- NO emojis
+- NO blank lines
+
+LINE FORMAT (MANDATORY):
+MUSIC:intro
+SFX:transition
+SPEECH:host:spoken text here
+SPEECH:cohost:spoken text here
+
+ALLOWED SPEAKERS:
+- host
+- cohost
+
+DO NOT invent speaker names.
+DO NOT abbreviate speaker names.
+DO NOT write OST, OHOST, narrator, or anything else.
+
+Speech lines must contain ONLY natural spoken language.
+Speech must NOT mention music, sound effects, pauses, or transitions.
+
+If you break the format, the output is invalid.
+`
+}
+,
         {
           role: "user",
           content: text,
         },
       ],
-      temperature: 0.7,
+      temperature: 0.4,
     });
 
-    const script = response.choices[0].message.content;
-    res.json({ script });
+    const raw = response.choices[0].message.content;
+
+    const segments = parseScript(raw);
+
+    res.json({ script: segments });
   } catch (err) {
-    res.status(500).json({ error: "AI script generation failed" });
+    console.error(err);
+    res.status(500).json({ error: "Script generation failed" });
   }
 });
+
+function parseScript(raw) {
+  return raw.split("\n").map(line => {
+    if (line.startsWith("MUSIC:")) {
+      return { type: "music", id: line.replace("MUSIC:", "") };
+    }
+    if (line.startsWith("SFX:")) {
+      return { type: "sfx", id: line.replace("SFX:", "") };
+    }
+    if (line.startsWith("SPEECH:")) {
+      const [, speaker, text] = line.match(/^SPEECH:(\w+):(.*)$/);
+      return { type: "speech", speaker, text: text.trim() };
+    }
+    return null;
+  }).filter(Boolean);
+}
+
 
 app.listen(PORT, () => {
   console.log(`Backend running at http://localhost:${PORT}`);
