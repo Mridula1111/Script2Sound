@@ -1,172 +1,26 @@
+import "dotenv/config";
+
 import express from "express";
 import cors from "cors";
-import multer from "multer";
-import fs from "fs";
-import dotenv from "dotenv";
-import OpenAI from "openai";
-import Tesseract from "tesseract.js";
-import { exec } from "child_process";
-import path from "path";
-import mammoth from 'mammoth';
+import connectDB from "./config/db.js";
 
-dotenv.config();
+import extractRoutes from "./routes/extract.routes.js";
+import scriptRoutes from "./routes/script.routes.js";
+import ttsRoutes from "./routes/tts.routes.js";
+
+import authRoutes from "./routes/auth.routes.js";
+
+connectDB();
 
 const app = express();
-const PORT = 5000;
-
 app.use(cors());
 app.use(express.json());
 
-const upload = multer({ dest: "uploads/" });
+app.use("/extract", extractRoutes);
+app.use("/script", scriptRoutes);
+app.use("/tts", ttsRoutes);
+app.use("/auth", authRoutes);
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// ---- EXTRACT NOTES (TXT) ----
-
-app.post("/extract", upload.single("file"), async (req, res) => {
-  try {
-    const filePath = req.file.path;
-    const fileType = req.file.mimetype;
-
-    let extractedText = "";
-
-    // TXT
-    if (fileType === "text/plain") {
-      extractedText = fs.readFileSync(filePath, "utf-8");
-    }
-
-    // DOCX
-    else if (
-      fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ) {
-      const result = await mammoth.extractRawText({ path: filePath });
-      extractedText = result.value;
-    }
-
-    // ---------- IMAGE OCR ----------
-    else if (fileType.startsWith("image/")) {
-      const result = await Tesseract.recognize(filePath, "eng");
-      extractedText = result.data.text;
-    }
-
-    // ---------- PDF OCR ----------
-    else if (fileType === "application/pdf") {
-      const outputDir = "uploads/pdf_images";
-      if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
-      // Convert PDF → images
-      await new Promise((resolve, reject) => {
-        exec(
-          `pdftoppm -png "${filePath}" "${outputDir}/page"`,
-          (error) => (error ? reject(error) : resolve())
-        );
-      });
-
-      const images = fs.readdirSync(outputDir).filter(f => f.endsWith(".png"));
-
-      for (const img of images) {
-        const result = await Tesseract.recognize(
-          path.join(outputDir, img),
-          "eng"
-        );
-        extractedText += result.data.text + "\n";
-      }
-    }
-
-    else {
-      return res.status(400).json({ error: "Unsupported file type" });
-    }
-
-    res.json({
-      text: extractedText,
-      length: extractedText.length
-    });
-
-  } catch (err) {
-    console.error("OCR ERROR:", err);
-    res.status(500).json({ error: "OCR extraction failed" });
-  }
-});
-
-// ---- AI SCRIPT GENERATION ----
-app.post("/script", async (req, res) => {
-  const { text } = req.body;
-
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-  role: "system",
-  content: `
-You generate podcast scripts for a machine.
-
-STRICT OUTPUT RULES:
-- Output plain text only
-- One line per segment
-- NO markdown
-- NO emojis
-- NO blank lines
-
-LINE FORMAT (MANDATORY):
-MUSIC:intro
-SFX:transition
-SPEECH:host:spoken text here
-SPEECH:cohost:spoken text here
-
-ALLOWED SPEAKERS:
-- host
-- cohost
-
-DO NOT invent speaker names.
-DO NOT abbreviate speaker names.
-DO NOT write OST, OHOST, narrator, or anything else.
-
-Speech lines must contain ONLY natural spoken language.
-Speech must NOT mention music, sound effects, pauses, or transitions.
-
-If you break the format, the output is invalid.
-`
-}
-,
-        {
-          role: "user",
-          content: text,
-        },
-      ],
-      temperature: 0.4,
-    });
-
-    const raw = response.choices[0].message.content;
-
-    const segments = parseScript(raw);
-
-    res.json({ script: segments });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Script generation failed" });
-  }
-});
-
-function parseScript(raw) {
-  return raw.split("\n").map(line => {
-    if (line.startsWith("MUSIC:")) {
-      return { type: "music", id: line.replace("MUSIC:", "") };
-    }
-    if (line.startsWith("SFX:")) {
-      return { type: "sfx", id: line.replace("SFX:", "") };
-    }
-    if (line.startsWith("SPEECH:")) {
-      const [, speaker, text] = line.match(/^SPEECH:(\w+):(.*)$/);
-      return { type: "speech", speaker, text: text.trim() };
-    }
-    return null;
-  }).filter(Boolean);
-}
-
-
-app.listen(PORT, () => {
-  console.log(`Backend running at http://localhost:${PORT}`);
-});
+app.listen(5000, () =>
+  console.log("🚀 Backend running at http://localhost:5000")
+);
