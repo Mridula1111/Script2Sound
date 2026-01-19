@@ -1,31 +1,132 @@
 import openai from "../services/openai.service.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import ffmpeg from "fluent-ffmpeg";
+import { gfs } from "../config/db.js"
+import Audio from "../models/Audio.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ⚠️ make sure this file exists
+const introPath = path.join(__dirname, "../assets/intro.mp3");
 
 export const ttsController = async (req, res) => {
-  const { text, speaker } = req.body;
-
-  const voiceMap = {
-    host: "alloy",
-    cohost: "verse",
-  };
-
   try {
-    const response = await openai.audio.speech.create({
-      model: "gpt-4o-mini-tts",
-      voice: voiceMap[speaker] || "alloy",
-      input: text,
-      format: "mp3",
+    const { script } = req.body;
+
+    if (!Array.isArray(script)) {
+      return res.status(400).json({ error: "Invalid script format" });
+    }
+
+    const voiceMap = {
+      host: "alloy",
+      cohost: "verse",
+    };
+
+    const tempFiles = [];
+
+    /* 1️⃣ Generate TTS per SPEECH */
+    for (let i = 0; i < script.length; i++) {
+      const line = script[i];
+      if (line.type !== "speech") continue;
+
+      const response = await openai.audio.speech.create({
+        model: "gpt-4o-mini-tts",
+        voice: voiceMap[line.speaker] || "alloy",
+        input: line.text,
+        format: "mp3",
+      });
+
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const tempPath = path.join(__dirname, `temp_${Date.now()}_${i}.mp3`);
+
+      fs.writeFileSync(tempPath, buffer);
+      tempFiles.push(tempPath);
+    }
+
+    if (!tempFiles.length) {
+      return res.status(400).json({ error: "No speech found" });
+    }
+
+    const outputPath = path.join(__dirname, `final_${Date.now()}.mp3`);
+
+    /* 2️⃣ Intro + speech concat (ONE filter graph) */
+    await new Promise((resolve, reject) => {
+      const cmd = ffmpeg();
+
+      // Intro first
+      cmd.input(introPath).inputOptions(["-t 12"]);
+
+      // Then all speech clips
+      tempFiles.forEach(file => cmd.input(file));
+
+      const concatInputs = [];
+      for (let i = 1; i <= tempFiles.length; i++) {
+        concatInputs.push(`${i}:a`);
+      }
+
+      cmd
+        .complexFilter([
+          {
+            filter: "volume",
+            options: "0.6",
+            inputs: "0:a",
+            outputs: "intro_vol",
+          },
+          {
+            filter: "afade",
+            options: "t=out:st=10:d=2",
+            inputs: "intro_vol",
+            outputs: "intro_fade",
+          },
+          {
+            filter: "concat",
+            options: {
+              n: tempFiles.length + 1,
+              v: 0,
+              a: 1,
+            },
+            inputs: ["intro_fade", ...concatInputs],
+            outputs: "outa",
+          },
+        ])
+        .outputOptions(["-map [outa]"])
+        .on("end", resolve)
+        .on("error", reject)
+        .save(outputPath);
     });
 
-    const buffer = Buffer.from(await response.arrayBuffer());
+    // 3️⃣ Save final MP3 to GridFS
+    const uploadStream = gfs.openUploadStream(path.basename(outputPath));
+    console.log("DECODED USER:", req.user);
 
-    res.set({
-      "Content-Type": "audio/mpeg",
-      "Content-Length": buffer.length,
-    });
+    fs.createReadStream(outputPath)
+      .pipe(uploadStream)
+      .on("finish", async () => {
+        // 4️⃣ Save metadata
+        await Audio.create({
+          user: new mongoose.Types.ObjectId(req.user.userId),
+          filename: uploadStream.filename,
+          speakers: [...new Set(script.map(l => l.speaker))],
+        });
 
-    res.send(buffer); // 🔊 stream audio
+        // 5️⃣ Stream back to user
+        res.set({ "Content-Type": "audio/mpeg" });
+        gfs.openDownloadStreamByName(uploadStream.filename).pipe(res);
+
+        // 6️⃣ Cleanup
+
+        const safeUnlink = (file) => {
+          if (fs.existsSync(file)) fs.unlinkSync(file);
+        };
+        tempFiles.forEach(safeUnlink);
+        safeUnlink(outputPath);
+      });
+
   } catch (err) {
-    console.error("TTS ERROR:", err);
-    res.status(500).json({ error: "TTS failed" });
+    console.error("MULTI TTS ERROR:", err);
+    res.status(500).json({ error: "Multi-speaker TTS failed" });
   }
 };

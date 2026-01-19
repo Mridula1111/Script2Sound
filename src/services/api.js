@@ -34,7 +34,7 @@ export async function generateScript(text) {
   return response.json();
 }
 
-export async function generateAudio(text, speaker = "host") {
+export async function generateAudio(script) {
   const token = localStorage.getItem("token");
 
   const res = await fetch("http://localhost:5000/tts", {
@@ -43,10 +43,42 @@ export async function generateAudio(text, speaker = "host") {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ text, speaker }),
+    body: JSON.stringify({ script }),
   });
 
   if (!res.ok) throw new Error("TTS failed");
 
   return await res.blob(); // 🔑 audio blob
+}
+
+export const getLibrary = async () => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:5000/audio", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch library");
+  }
+
+  return res.json();
+};
+
+
+export async function fetchAudio(filename) {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`http://localhost:5000/audio/${filename}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("Audio fetch failed");
+
+  return await res.blob();
 }

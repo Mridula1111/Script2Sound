@@ -1,12 +1,12 @@
 import { useState } from "react";
 import UploadNotes from "../components/UploadNotes";
 import { uploadNotes, generateScript, generateAudio } from "../services/api";
+import Navbar from "../components/Navbar";
 
 export default function GenerateScript() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
-  const [script, setScript] = useState(null);
 
   const handleGenerateAudio = async () => {
     if (!file) {
@@ -30,19 +30,8 @@ export default function GenerateScript() {
         return;
       }
 
-      // 3️⃣ Extract SPEECH only
-      const speechText = scriptRes.script
-        .filter(line => line.type === "speech")
-        .map(line => line.text)
-        .join(" ");
-
-      if (!speechText) {
-        alert("No speech found in script");
-        return;
-      }
-
-      // 4️⃣ Generate audio
-      const blob = await generateAudio(speechText, "host");
+      // 3️⃣ Send full script to backend
+      const blob = await generateAudio(scriptRes.script, "host");
 
       const url = URL.createObjectURL(blob);
       setAudioUrl(url);
@@ -74,7 +63,7 @@ export default function GenerateScript() {
           <button
             onClick={handleGenerateAudio}
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+            className="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
           >
             {loading ? "Generating audio..." : "Generate Audio"}
           </button>
@@ -84,7 +73,7 @@ export default function GenerateScript() {
           <div className="bg-gray-800 p-6 rounded-xl shadow text-center space-y-4">
             <h2 className="font-semibold">Your Audio is Ready</h2>
 
-            <audio controls src={audioUrl} className="w-full" />
+              <audio controls src={audioUrl} className="w-full" />
 
             <a
               href={audioUrl}
