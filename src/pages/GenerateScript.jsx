@@ -1,70 +1,114 @@
 import { useState } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import UploadNotes from "../components/UploadNotes";
-import { uploadNotes, generateScript } from "../services/api";
+import { uploadNotes, generateScript, generateAudio } from "../services/api";
 
 export default function GenerateScript() {
   const [file, setFile] = useState(null);
-  const [script, setScript] = useState("");
   const [loading, setLoading] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [audioName, setAudioName] = useState("");
+  const [script, setScript] = useState(null);
 
-  const handleGenerate = async () => {
-    if (!file) return alert("Please upload a file");
+  const handleGenerateAudio = async () => {
+    if (!file) {
+      alert("Please upload notes first");
+      return;
+    }
 
-    setLoading(true);
-    const { text } = await uploadNotes(file);
-    const { script } = await generateScript(text);
-    setScript(script);
-    setLoading(false);
+    setAudioUrl(null);
+    setScript(null);
+
+    try {
+      setLoading(true);
+
+      // 1️⃣ Extract text from notes
+      const extractRes = await uploadNotes(file);
+      const notesText = extractRes.text;
+      
+
+      // 2️⃣ Generate script
+      const scriptRes = await generateScript(notesText);
+
+      if (!Array.isArray(scriptRes.script)) {
+        console.error("Invalid script response:", scriptRes);
+        alert("Script generation failed");
+        return;
+      }
+
+      setScript(scriptRes.script);
+
+      const title =
+        audioName?.trim() ||
+          `Notes Audio ${new Date().toLocaleDateString()}`;
+
+          // 3️⃣ Send full script to backend
+      const audioRes = await generateAudio(scriptRes.script, title);
+      console.log("AUDIO RESPONSE:", audioRes);
+      const filename = audioRes.filename;
+
+      const url = `http://localhost:5000/audio/${filename}`;
+      setAudioUrl(url);
+
+    } catch (err) {
+      console.error(err);
+      alert("Audio generation failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
+
   return (
-  <div className="min-h-screen flex flex-col bg-gray-100">
-    
-    {/* Header */}
-    <Navbar />
+    <div className="min-h-screen flex flex-col">
 
-    {/* Main Content */}
-    <main className="flex-grow max-w-3xl mx-auto px-6 py-10 space-y-8">
+      <main className="grow max-w-3xl mx-auto px-6 py-10 space-y-8">
+        <h1 className="text-3xl font-bold text-center text-white">
+          Notes to Audio
+        </h1>
 
-      <h1 className="text-3xl font-bold text-center">
-    Notes to Script
-      </h1>
+        <p className="text-center text-gray-400">
+          Upload your notes and turn them into downloadable podcast audio
+        </p>
 
-      <p className="text-center text-gray-600">
-    Upload your notes and instantly turn them into an engaging podcast script
-      </p>
+        <div className="bg-gray-800 p-6 rounded-xl shadow space-y-4">
+          <UploadNotes onUpload={setFile} />
 
-      <div className="bg-white p-6 rounded-xl shadow space-y-4">
-        <UploadNotes onUpload={setFile} />
+          <input
+            type="text"
+            placeholder="Audio name (optional)"
+            value={audioName}
+            onChange={(e) => setAudioName(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg
+                      bg-gray-900 border border-gray-700
+                      text-white placeholder-gray-400
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
 
-        <button
-          onClick={handleGenerate}
-          disabled={loading}
-          className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
-        >
-          {loading ? "Generating..." : "Generate Script"}
-        </button>
-      </div>
-
-      {script && (
-        <div className="bg-white p-6 rounded-xl shadow">
-          <h2 className="font-semibold mb-3">
-            Generated Script
-          </h2>
-          <div className="max-h-96 overflow-y-auto text-sm whitespace-pre-wrap">
-            {script}
-          </div>
+          <button
+            onClick={handleGenerateAudio}
+            disabled={loading}
+            className="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+          >
+            {loading ? "Generating audio..." : "Generate Audio"}
+          </button>
         </div>
-      )}
 
-    </main>
+        {audioUrl && (
+          <div className="bg-gray-800 p-6 rounded-xl shadow text-center space-y-4">
+            <h2 className="font-semibold">Your Audio is Ready</h2>
 
-    {/* Footer */}
-    <Footer />
-  </div>
-);
+              <audio controls src={audioUrl} className="w-full" />
 
+            <a
+              href={audioUrl}
+              download={`${audioName?.trim() || `Notes Audio ${new Date().toLocaleDateString()}`}.mp3`}
+              className="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg"
+            >
+              ⬇️ Download Audio
+            </a>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 }
-

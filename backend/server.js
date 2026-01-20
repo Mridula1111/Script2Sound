@@ -1,62 +1,33 @@
+import "dotenv/config";
+
 import express from "express";
 import cors from "cors";
-import multer from "multer";
-import fs from "fs";
-import dotenv from "dotenv";
-import OpenAI from "openai";
+import connectDB from "./config/db.js";
 
-dotenv.config();
+import extractRoutes from "./routes/extract.routes.js";
+import scriptRoutes from "./routes/script.routes.js";
+import ttsRoutes from "./routes/tts.routes.js";
+
+import authRoutes from "./routes/auth.routes.js";
+import audioRoutes from "./routes/audio.routes.js";
+
+connectDB();
 
 const app = express();
-const PORT = 5000;
-
 app.use(cors());
 app.use(express.json());
 
-const upload = multer({ dest: "uploads/" });
+app.use("/extract", extractRoutes);
+app.use("/script", scriptRoutes);
+app.use("/tts", ttsRoutes);
+app.use("/auth", authRoutes);
+app.use("/audio", audioRoutes);
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+app.use((req, res, next) => {
+  console.log("➡️ Incoming:", req.method, req.url);
+  next();
 });
 
-// ---- EXTRACT NOTES (TXT) ----
-app.post("/extract", upload.single("file"), (req, res) => {
-  try {
-    const text = fs.readFileSync(req.file.path, "utf-8");
-    res.json({ text });
-  } catch (err) {
-    res.status(500).json({ error: "Text extraction failed" });
-  }
-});
-
-// ---- AI SCRIPT GENERATION ----
-app.post("/script", async (req, res) => {
-  const { text } = req.body;
-
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a professional podcast script writer. Convert notes into an engaging, conversational podcast script. Do not sound like notes.",
-        },
-        {
-          role: "user",
-          content: text,
-        },
-      ],
-      temperature: 0.7,
-    });
-
-    const script = response.choices[0].message.content;
-    res.json({ script });
-  } catch (err) {
-    res.status(500).json({ error: "AI script generation failed" });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Backend running at http://localhost:${PORT}`);
-});
+app.listen(5000, () =>
+  console.log("🚀 Backend running at http://localhost:5000")
+);
