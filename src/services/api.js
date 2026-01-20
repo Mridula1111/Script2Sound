@@ -99,3 +99,21 @@ export const deleteAudio = async (id) => {
 
   return res.json();
 };
+
+export const generateQuestions = async (audioId) => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(
+    `http://localhost:5000/questions/${audioId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!res.ok) throw new Error("Failed to generate questions");
+
+  return res.json();
+};

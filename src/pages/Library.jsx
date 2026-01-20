@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getLibrary, fetchAudio } from "../services/api";
 import Navbar from "../components/Navbar";
 import { deleteAudio } from "../services/api";
@@ -94,6 +95,13 @@ export default function Library() {
                     ▶ Click play to load audio
                   </p>
                 )}
+
+                <button
+                  onClick={() => navigate(`/questions/${audio._id}`)}
+                  className="text-indigo-400 hover:underline text-sm"
+                >
+                  📘 Practice Questions
+                </button>
               </div>
             ))}
           </div>
