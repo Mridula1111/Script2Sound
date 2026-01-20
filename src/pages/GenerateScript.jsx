@@ -1,12 +1,13 @@
 import { useState } from "react";
 import UploadNotes from "../components/UploadNotes";
 import { uploadNotes, generateScript, generateAudio } from "../services/api";
-import Navbar from "../components/Navbar";
 
 export default function GenerateScript() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
+  const [audioName, setAudioName] = useState("");
+  const [script, setScript] = useState(null);
 
   const handleGenerateAudio = async () => {
     if (!file) {
@@ -14,12 +15,16 @@ export default function GenerateScript() {
       return;
     }
 
+    setAudioUrl(null);
+    setScript(null);
+
     try {
       setLoading(true);
 
       // 1️⃣ Extract text from notes
       const extractRes = await uploadNotes(file);
       const notesText = extractRes.text;
+      
 
       // 2️⃣ Generate script
       const scriptRes = await generateScript(notesText);
@@ -30,10 +35,18 @@ export default function GenerateScript() {
         return;
       }
 
-      // 3️⃣ Send full script to backend
-      const blob = await generateAudio(scriptRes.script, "host");
+      setScript(scriptRes.script);
 
-      const url = URL.createObjectURL(blob);
+      const title =
+        audioName?.trim() ||
+          `Notes Audio ${new Date().toLocaleDateString()}`;
+
+          // 3️⃣ Send full script to backend
+      const audioRes = await generateAudio(scriptRes.script, title);
+      console.log("AUDIO RESPONSE:", audioRes);
+      const filename = audioRes.filename;
+
+      const url = `http://localhost:5000/audio/${filename}`;
       setAudioUrl(url);
 
     } catch (err) {
@@ -60,6 +73,17 @@ export default function GenerateScript() {
         <div className="bg-gray-800 p-6 rounded-xl shadow space-y-4">
           <UploadNotes onUpload={setFile} />
 
+          <input
+            type="text"
+            placeholder="Audio name (optional)"
+            value={audioName}
+            onChange={(e) => setAudioName(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg
+                      bg-gray-900 border border-gray-700
+                      text-white placeholder-gray-400
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+
           <button
             onClick={handleGenerateAudio}
             disabled={loading}
@@ -77,7 +101,7 @@ export default function GenerateScript() {
 
             <a
               href={audioUrl}
-              download="script2sound.mp3"
+              download={`${audioName?.trim() || `Notes Audio ${new Date().toLocaleDateString()}`}.mp3`}
               className="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg"
             >
               ⬇️ Download Audio

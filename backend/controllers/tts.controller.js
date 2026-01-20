@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import ffmpeg from "fluent-ffmpeg";
 import { gfs } from "../config/db.js"
 import Audio from "../models/Audio.js";
+import mongoose from "mongoose";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,7 +15,7 @@ const introPath = path.join(__dirname, "../assets/intro.mp3");
 
 export const ttsController = async (req, res) => {
   try {
-    const { script } = req.body;
+    const { script, title } = req.body;
 
     if (!Array.isArray(script)) {
       return res.status(400).json({ error: "Invalid script format" });
@@ -99,7 +100,14 @@ export const ttsController = async (req, res) => {
     });
 
     // 3️⃣ Save final MP3 to GridFS
-    const uploadStream = gfs.openUploadStream(path.basename(outputPath));
+    const safeTitle = title
+      ? title.replace(/[^a-z0-9-_ ]/gi, "").trim()
+      : "Untitled Audio";
+
+    const filename = `${safeTitle}-${Date.now()}.mp3`;
+
+    const uploadStream = gfs.openUploadStream(filename);
+
     console.log("DECODED USER:", req.user);
 
     fs.createReadStream(outputPath)
@@ -108,13 +116,15 @@ export const ttsController = async (req, res) => {
         // 4️⃣ Save metadata
         await Audio.create({
           user: new mongoose.Types.ObjectId(req.user.userId),
+          title: safeTitle,
           filename: uploadStream.filename,
           speakers: [...new Set(script.map(l => l.speaker))],
         });
 
         // 5️⃣ Stream back to user
-        res.set({ "Content-Type": "audio/mpeg" });
-        gfs.openDownloadStreamByName(uploadStream.filename).pipe(res);
+        res.json({
+          filename: uploadStream.filename,
+        });
 
         // 6️⃣ Cleanup
 

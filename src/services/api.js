@@ -34,22 +34,23 @@ export async function generateScript(text) {
   return response.json();
 }
 
-export async function generateAudio(script) {
-  const token = localStorage.getItem("token");
-
+export const generateAudio = async (script, title) => {
   const res = await fetch("http://localhost:5000/tts", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-    body: JSON.stringify({ script }),
+    body: JSON.stringify({ script, title }),
   });
 
-  if (!res.ok) throw new Error("TTS failed");
+  if (!res.ok) {
+    throw new Error("Audio generation failed");
+  }
 
-  return await res.blob(); // 🔑 audio blob
-}
+  return res.json(); // ✅ THIS WAS MISSING
+};
+
 
 export const getLibrary = async () => {
   const token = localStorage.getItem("token");

@@ -10,7 +10,7 @@ export const scriptController = async (req, res) => {
         {
           role: "system",
           content: `
-You generate podcast scripts for a machine.
+You generate podcast scripts for a machine from given textx, ignore all previous topics.
 
 LINE FORMAT:
 MUSIC:intro
