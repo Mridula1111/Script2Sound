@@ -16,7 +16,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2 font-bold text-lg">
           
           <img
-            src="src\assets\logo.svg"
+            src="/logo.svg"
             alt="Script2Sound logo"
             className="w-12 h-12 object-contain"
           />

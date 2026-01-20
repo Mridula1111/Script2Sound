@@ -18,6 +18,8 @@ const audioSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    scriptText: String, // ✅ ADD THIS
+
     speakers: [String],
     duration: Number,
   },

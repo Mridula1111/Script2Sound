@@ -11,24 +11,37 @@ export const generateQuestions = async (req, res) => {
     }
 
     const prompt = `
-You are a teacher.
-Create 5 study questions with answers based on the following topic:
+Based ONLY on the following content, generate 5 relevant practice questions with answers.
 
-Title: ${audio.title || audio.filename}
+CONTENT:
+${audio.scriptText}
 
-Return JSON ONLY in this format:
+Rules:
+- Questions must come ONLY from this content
+- No outside knowledge
+- Respond with ONLY valid JSON
+- No markdown, no backticks
+
+Format:
 [
   { "question": "...", "answer": "..." }
 ]
 `;
 
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
     });
-
+    
     const raw = completion.choices[0].message.content;
-    const questions = JSON.parse(raw);
+
+    const cleaned = raw
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const questions = JSON.parse(cleaned);
 
     res.json({ questions });
   } catch (err) {

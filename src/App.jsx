@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Library from "./pages/Library";
+import Questions from "./pages/Questions";
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
       />
 
       <Route path="/library" element={<Library />} />
+      <Route path="/questions/:audioId" element={<Questions />} />
+
     </Routes>
     
   );

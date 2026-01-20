@@ -15,7 +15,7 @@ export default function Questions() {
   }, [audioId]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-linear-to-b from-slate-950 to-slate-900 text-white flex flex-col">
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-6 py-10">

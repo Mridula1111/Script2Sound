@@ -118,6 +118,7 @@ export const ttsController = async (req, res) => {
           user: new mongoose.Types.ObjectId(req.user.userId),
           title: safeTitle,
           filename: uploadStream.filename,
+          scriptText: script.map(l => l.text).join("\n"), // ✅ IMPORTANT
           speakers: [...new Set(script.map(l => l.speaker))],
         });
 

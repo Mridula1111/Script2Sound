@@ -8,6 +8,7 @@ export default function Library() {
   const [audios, setAudios] = useState([]);
   const [audioUrls, setAudioUrls] = useState({});
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Fetch library once
   useEffect(() => {
