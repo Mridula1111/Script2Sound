@@ -83,3 +83,19 @@ export async function fetchAudio(filename) {
 
   return await res.blob();
 }
+
+
+export const deleteAudio = async (id) => {
+  const res = await fetch(`http://localhost:5000/audio/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Delete failed");
+  }
+
+  return res.json();
+};

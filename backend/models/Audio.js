@@ -7,6 +7,13 @@ const audioSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
+       // ✅ ADD THIS
+    title: {
+      type: String,
+      required: true,
+    },
+    
     filename: {
       type: String,
       required: true,

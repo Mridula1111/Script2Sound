@@ -68,5 +68,33 @@ router.get("/:filename", async (req, res) => {
   }
 });
 
+/* Delete audio */
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const audio = await Audio.findOne({
+      _id: req.params.id,
+      user: req.user.userId,
+    });
+
+    if (!audio) {
+      return res.status(404).json({ error: "Audio not found" });
+    }
+
+    // delete file from GridFS
+    const file = await gfs.find({ filename: audio.filename }).toArray();
+    if (file[0]) {
+      await gfs.delete(file[0]._id);
+    }
+
+    // delete metadata
+    await Audio.deleteOne({ _id: audio._id });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("DELETE AUDIO ERROR:", err);
+    res.status(500).json({ error: "Delete failed" });
+  }
+});
+
 
 export default router;
