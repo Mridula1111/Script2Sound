@@ -50,6 +50,8 @@ export async function generateTTSElevenLabs(text, language, speaker) {
 
   const voiceId = voiceMap[speaker] || voiceMap.host;
 
+  console.log(`🔊 Generating TTS - Language: ${language}, Speaker: ${speaker}, VoiceID: ${voiceId}`);
+
   try {
     // Use ElevenLabs API directly for better control
     const response = await fetch(
@@ -63,6 +65,7 @@ export async function generateTTSElevenLabs(text, language, speaker) {
         body: JSON.stringify({
           text: text,
           model_id: "eleven_multilingual_v2", // Supports 29 languages including Indian languages
+          language_code: getLanguageCode(language), // Pass language code to API
           voice_settings: {
             stability: 0.5,
             similarity_boost: 0.75,
@@ -77,9 +80,25 @@ export async function generateTTSElevenLabs(text, language, speaker) {
     }
 
     const buffer = await response.buffer();
+    console.log(`✅ TTS generated successfully for ${language}`);
     return buffer;
   } catch (error) {
     console.error("ElevenLabs TTS Error:", error.message);
     throw error;
   }
+}
+
+// Map language names to ElevenLabs language codes
+function getLanguageCode(language) {
+  const languageCodeMap = {
+    english: "en",
+    tamil: "ta",
+    hindi: "hi",
+    telugu: "te",
+    kannada: "kn",
+    malayalam: "ml",
+    marathi: "mr",
+    gujarati: "gu",
+  };
+  return languageCodeMap[language] || "en";
 }
