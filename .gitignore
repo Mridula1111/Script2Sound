@@ -6,8 +6,13 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-.env
 
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Dependencies
 node_modules
 dist
 dist-ssr
@@ -23,7 +28,54 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+*.iml
 
-#Backend uploads & OCR data
+# Backend uploads & OCR data
 backend/uploads/
 backend/eng.traineddata
+backend/pdf_images/
+
+# Backend temporary files (TTS generation)
+backend/temp_*.mp3
+backend/final_*.mp3
+backend/*.mp3
+
+# Backend credentials & config
+backend/config/google-credentials.json
+backend/.env
+backend/node_modules/
+
+# Frontend build & cache
+.cache/
+.parcel-cache/
+build/
+.next/
+
+# OS generated files
+Thumbs.db
+.AppleDouble
+.LSOverride
+*~
+._*
+.localized
+
+# IDE specific files
+.gradle/
+*.o
+*.a
+*.so
+*.dylib
+
+# Build outputs
+*.out
+*.exe
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Yarn
+.yarn/cache
+.yarn/install-state.gz
