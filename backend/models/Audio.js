@@ -8,7 +8,6 @@ const audioSchema = new mongoose.Schema(
       required: true,
     },
 
-       // ✅ ADD THIS
     title: {
       type: String,
       required: true,
@@ -18,10 +17,25 @@ const audioSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    scriptText: String, // ✅ ADD THIS
+
+    scriptText: String,
 
     speakers: [String],
+    
     duration: Number,
+
+    // Language fields
+    language: {
+      type: String,
+      enum: ["english", "native"],
+      default: "english",
+    },
+    
+    nativeLanguage: {
+      type: String,
+      enum: ["hindi", "tamil", "telugu", "kannada", "malayalam", "marathi", "gujarati"],
+      default: null,
+    },
   },
   { timestamps: true }
 );

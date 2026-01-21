@@ -13,7 +13,7 @@ export async function uploadNotes(file) {
   const response = await fetch(`${API_URL}/extract`, {
     method: "POST",
     headers: {
-      ...authHeader(), // ✅ JWT added safely
+      ...authHeader(),
     },
     body: formData,
   });
@@ -21,34 +21,49 @@ export async function uploadNotes(file) {
   return response.json();
 }
 
-export async function generateScript(text) {
+export async function generateScript(text, languageOptions = {}) {
   const response = await fetch(`${API_URL}/script`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...authHeader(), // ✅ JWT added safely
+      ...authHeader(),
     },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ 
+      text,
+      language: languageOptions.language || "english",
+      nativeLanguage: languageOptions.nativeLanguage || null,
+    }),
   });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Script generation failed");
+  }
 
   return response.json();
 }
 
-export const generateAudio = async (script, title) => {
-  const res = await fetch("http://localhost:5000/tts", {
+export const generateAudio = async (script, title, languageOptions = {}) => {
+  const res = await fetch(`${API_URL}/tts`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-    body: JSON.stringify({ script, title }),
+    body: JSON.stringify({ 
+      script, 
+      title,
+      language: languageOptions.language || "english",
+      nativeLanguage: languageOptions.nativeLanguage || null,
+    }),
   });
 
   if (!res.ok) {
-    throw new Error("Audio generation failed");
+    const error = await res.json();
+    throw new Error(error.error || "Audio generation failed");
   }
 
-  return res.json(); // ✅ THIS WAS MISSING
+  return res.json();
 };
 
 

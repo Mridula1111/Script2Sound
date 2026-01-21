@@ -1,66 +1,72 @@
-import openai from "../services/openai.service.js";
+import { generateTTSElevenLabs } from "../services/elevenlabs-tts.service.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import ffmpeg from "fluent-ffmpeg";
-import { gfs } from "../config/db.js"
+import { gfs } from "../config/db.js";
 import Audio from "../models/Audio.js";
 import mongoose from "mongoose";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ⚠️ make sure this file exists
 const introPath = path.join(__dirname, "../assets/intro.mp3");
 
 export const ttsController = async (req, res) => {
   try {
-    const { script, title } = req.body;
+    const { script, title, language = "english", nativeLanguage = null } = req.body;
 
     if (!Array.isArray(script)) {
       return res.status(400).json({ error: "Invalid script format" });
     }
 
-    const voiceMap = {
-      host: "alloy",
-      cohost: "verse",
-    };
-
     const tempFiles = [];
+    const activeLanguage = language === "native" ? nativeLanguage : "english";
 
-    /* 1️⃣ Generate TTS per SPEECH */
+    console.log(`🎵 Starting TTS generation for: ${activeLanguage}`);
+
+    /* 1️⃣ Generate TTS per SPEECH using ElevenLabs */
     for (let i = 0; i < script.length; i++) {
       const line = script[i];
       if (line.type !== "speech") continue;
 
-      const response = await openai.audio.speech.create({
-        model: "gpt-4o-mini-tts",
-        voice: voiceMap[line.speaker] || "alloy",
-        input: line.text,
-        format: "mp3",
-      });
+      console.log(`🎤 Generating TTS for ${line.speaker} (${activeLanguage})`);
 
-      const buffer = Buffer.from(await response.arrayBuffer());
-      const tempPath = path.join(__dirname, `temp_${Date.now()}_${i}.mp3`);
+      try {
+        // Use ElevenLabs for natural multilingual support
+        const audioBuffer = await generateTTSElevenLabs(
+          line.text,
+          activeLanguage,
+          line.speaker
+        );
 
-      fs.writeFileSync(tempPath, buffer);
-      tempFiles.push(tempPath);
+        const tempPath = path.join(__dirname, `temp_${Date.now()}_${i}.mp3`);
+        fs.writeFileSync(tempPath, audioBuffer);
+        tempFiles.push(tempPath);
+
+        console.log(`✅ TTS generated for ${line.speaker}`);
+      } catch (ttsError) {
+        console.error(`TTS Error for ${line.speaker}:`, ttsError.message);
+        throw new Error(
+          `Failed to generate audio for ${line.speaker}: ${ttsError.message}`
+        );
+      }
     }
 
     if (!tempFiles.length) {
-      return res.status(400).json({ error: "No speech found" });
+      return res.status(400).json({ error: "No speech found in script" });
     }
+
+    console.log(`📦 Concatenating ${tempFiles.length} audio clips...`);
 
     const outputPath = path.join(__dirname, `final_${Date.now()}.mp3`);
 
-    /* 2️⃣ Intro + speech concat (ONE filter graph) */
+    /* 2️⃣ Intro + speech concat */
     await new Promise((resolve, reject) => {
       const cmd = ffmpeg();
 
-      // Intro first
       cmd.input(introPath).inputOptions(["-t 12"]);
 
-      // Then all speech clips
       tempFiles.forEach(file => cmd.input(file));
 
       const concatInputs = [];
@@ -104,11 +110,12 @@ export const ttsController = async (req, res) => {
       ? title.replace(/[^a-z0-9-_ ]/gi, "").trim()
       : "Untitled Audio";
 
-    const filename = `${safeTitle}-${Date.now()}.mp3`;
+    const languageSuffix = language === "native" ? `_${nativeLanguage}` : "_english";
+    const filename = `${safeTitle}${languageSuffix}-${Date.now()}.mp3`;
 
     const uploadStream = gfs.openUploadStream(filename);
 
-    console.log("DECODED USER:", req.user);
+    console.log("📤 Uploading to GridFS:", filename);
 
     fs.createReadStream(outputPath)
       .pipe(uploadStream)
@@ -118,26 +125,33 @@ export const ttsController = async (req, res) => {
           user: new mongoose.Types.ObjectId(req.user.userId),
           title: safeTitle,
           filename: uploadStream.filename,
-          scriptText: script.map(l => l.text).join("\n"), // ✅ IMPORTANT
+          language: language,
+          nativeLanguage: nativeLanguage || null,
+          scriptText: script.map(l => l.text).join("\n"),
           speakers: [...new Set(script.map(l => l.speaker))],
         });
 
-        // 5️⃣ Stream back to user
         res.json({
           filename: uploadStream.filename,
+          language: language,
         });
 
-        // 6️⃣ Cleanup
+        console.log("✅ Audio saved and metadata recorded");
 
+        // 5️⃣ Cleanup
         const safeUnlink = (file) => {
           if (fs.existsSync(file)) fs.unlinkSync(file);
         };
         tempFiles.forEach(safeUnlink);
         safeUnlink(outputPath);
+      })
+      .on("error", (err) => {
+        console.error("GridFS upload error:", err);
+        res.status(500).json({ error: "Failed to save audio" });
       });
 
   } catch (err) {
-    console.error("MULTI TTS ERROR:", err);
-    res.status(500).json({ error: "Multi-speaker TTS failed" });
+    console.error("MULTI TTS ERROR:", err.message);
+    res.status(500).json({ error: err.message || "Multi-speaker TTS failed" });
   }
 };

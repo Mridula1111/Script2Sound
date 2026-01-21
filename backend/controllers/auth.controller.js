@@ -31,7 +31,8 @@ export async function registerUser(req, res) {
       message: "Registered. Please verify your email.",
     });
   } catch (err) {
-    res.status(400).json({ error: "Register failed" });
+    console.error("REGISTER ERROR:", err.message);
+    res.status(400).json({ error: err.message || "Register failed" });
   }
 }
 

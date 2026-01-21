@@ -79,3 +79,4 @@ coverage/
 # Yarn
 .yarn/cache
 .yarn/install-state.gz
+backend/controllers/temp_*.mp3
