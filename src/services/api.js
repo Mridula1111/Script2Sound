@@ -132,3 +132,73 @@ export const generateQuestions = async (audioId) => {
 
   return res.json();
 };
+
+export const convertAudioToNotes = async (audioFile, title) => {
+  const formData = new FormData();
+  formData.append("audio", audioFile);
+  formData.append("title", title || "");
+  formData.append("format", "pdf");
+
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_URL}/audio-to-notes`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Audio-to-notes conversion failed");
+  }
+
+  return res.json();
+};
+
+export const getNotesLibrary = async () => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_URL}/notes`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch notes library");
+  }
+
+  return res.json();
+};
+
+export const fetchNotePDF = async (filename) => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_URL}/notes/${filename}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("Note PDF fetch failed");
+
+  return await res.blob();
+};
+
+export const deleteNote = async (id) => {
+  const res = await fetch(`${API_URL}/notes/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Delete failed");
+  }
+
+  return res.json();
+};

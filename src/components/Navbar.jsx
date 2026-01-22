@@ -1,54 +1,75 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
-  return (
-    <header className="bg-black/40 backdrop-blur border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+  const isActive = (path) => location.pathname === path;
 
-        {/* Left: Logo */}
-        <div className="flex items-center gap-2 font-bold text-lg">
-          
+  return (
+    <aside className="w-64 bg-slate-900 border-r border-slate-700 flex flex-col h-screen">
+      {/* Logo */}
+      <div className="p-6 border-b border-slate-700">
+        <Link to="/generate" className="flex items-center gap-2">
           <img
             src="/logo.svg"
             alt="Script2Sound logo"
-            className="w-12 h-12 object-contain"
+            className="w-10 h-10 object-contain"
           />
-        
-        {/* Left: Title */}
+          <span className="bg-linear-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md font-bold text-lg">
+            Script2Sound
+          </span>
+        </Link>
+      </div>
+
+      {/* Navigation Tabs */}
+      <nav className="flex-1 p-4 space-y-2">
         <Link
           to="/generate"
-          >
-        <span className="bg-linear-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md font-bold text-lg">
-           Script2Sound
-        </span>
+          className={`block px-4 py-3 rounded-lg transition-colors ${
+            isActive("/generate")
+              ? "bg-slate-700 text-white font-semibold"
+              : "text-slate-300 hover:bg-slate-800 hover:text-white"
+          }`}
+        >
+          Notes → Audio
         </Link>
-        </div>
+        <Link
+          to="/audio-to-notes"
+          className={`block px-4 py-3 rounded-lg transition-colors ${
+            isActive("/audio-to-notes")
+              ? "bg-slate-700 text-white font-semibold"
+              : "text-slate-300 hover:bg-slate-800 hover:text-white"
+          }`}
+        >
+          Audio → Notes
+        </Link>
+        <Link
+          to="/library"
+          className={`block px-4 py-3 rounded-lg transition-colors ${
+            isActive("/library")
+              ? "bg-slate-700 text-white font-semibold"
+              : "text-slate-300 hover:bg-slate-800 hover:text-white"
+          }`}
+        >
+          Library
+        </Link>
+      </nav>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-3">
-          <Link
-            to="/library"
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition"
-          >
-            My Library
-          </Link>
-
-          <button
-            onClick={handleLogout}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition"
-          >
-            Logout
-          </button>
-        </div>
-
+      {/* Logout Button */}
+      <div className="p-4 border-t border-slate-700">
+        <button
+          onClick={handleLogout}
+          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition"
+        >
+          Logout
+        </button>
       </div>
-    </header>
+    </aside>
   );
 }

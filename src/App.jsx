@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import GenerateScript from "./pages/GenerateScript";
+import AudioToNotes from "./pages/AudioToNotes";
 import AppLayout from "./layouts/AppLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -26,8 +27,37 @@ function App() {
         }
       />
 
-      <Route path="/library" element={<Library />} />
-      <Route path="/questions/:audioId" element={<Questions />} />
+      <Route
+        path="/audio-to-notes"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <AudioToNotes />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/library"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Library />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/questions/:audioId"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Questions />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
 
     </Routes>
     
