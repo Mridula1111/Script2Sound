@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const audioSchema = new mongoose.Schema(
+const noteSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -18,23 +18,31 @@ const audioSchema = new mongoose.Schema(
       required: true,
     },
 
-    scriptText: String,
-
-    speakers: [String],
-    
-    duration: Number,
-
-    // Language fields
-    language: {
+    originalAudioFilename: {
       type: String,
-      enum: ["english", "native"],
-      default: "english",
+      required: true,
     },
-    
-    nativeLanguage: {
+
+    transcript: {
       type: String,
-      enum: ["hindi", "tamil", "telugu", "kannada", "malayalam", "marathi", "gujarati"],
-      default: null,
+      required: true,
+    },
+
+    content: {
+      definitions: [String],
+      explanations: [String],
+      practiceQuestions: [
+        {
+          question: String,
+          answer: String,
+        },
+      ],
+    },
+
+    format: {
+      type: String,
+      enum: ["pdf", "ppt"],
+      default: "pdf",
     },
 
     linkedTasks: [
@@ -47,4 +55,4 @@ const audioSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Audio", audioSchema);
+export default mongoose.model("Note", noteSchema);

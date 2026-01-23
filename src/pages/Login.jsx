@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "/logo.svg";
 import { Link } from "react-router-dom";
+import FloatingLabel from "../components/FloatingLabel";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -67,19 +68,23 @@ return (
           <h2 className="text-xl font-semibold text-center mb-6">Login</h2>
 
           <form onSubmit={handleLogin} className="space-y-4">
-            <input
-              type="email"
-              className="w-full mb-3 p-3 rounded bg-slate-700 text-white placeholder-slate-400"
-              placeholder="Email"
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <FloatingLabel label="Email" required>
+              <input
+                type="email"
+                value={email}
+                className="w-full px-4 pt-6 pb-2 rounded bg-slate-700 text-white"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </FloatingLabel>
 
-            <input
-              type="password"
-              className="w-full mb-4 p-3 rounded bg-slate-700 text-white placeholder-slate-400"
-              placeholder="Password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <FloatingLabel label="Password" required>
+              <input
+                type="password"
+                value={password}
+                className="w-full px-4 pt-6 pb-2 rounded bg-slate-700 text-white"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </FloatingLabel>
 
             <button 
               type="submit"

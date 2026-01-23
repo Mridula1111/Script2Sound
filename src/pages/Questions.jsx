@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { generateQuestions } from "../services/api";
-import Navbar from "../components/Navbar";
+import AppLayout from "../layouts/AppLayout";
 
 export default function Questions() {
   const { audioId } = useParams();
@@ -15,10 +15,8 @@ export default function Questions() {
   }, [audioId]);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-slate-950 to-slate-900 text-white flex flex-col">
-      <Navbar />
-
-      <main className="max-w-3xl mx-auto px-6 py-10">
+    <AppLayout>
+      <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold text-white mb-6">
           Sample Questions
         </h1>
@@ -41,7 +39,7 @@ export default function Questions() {
             </div>
           ))}
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

@@ -31,7 +31,8 @@ export async function registerUser(req, res) {
       message: "Registered. Please verify your email.",
     });
   } catch (err) {
-    res.status(400).json({ error: "Register failed" });
+    console.error("REGISTER ERROR:", err.message);
+    res.status(400).json({ error: err.message || "Register failed" });
   }
 }
 
@@ -106,5 +107,24 @@ export async function loginUser(req, res) {
   } catch (err) {
     res.status(500).json({ error: "Login failed" });
   }
+}
 
+// GET CURRENT USER
+export async function getCurrentUser(req, res) {
+  try {
+    const user = await User.findById(req.user.userId).select("-password -verificationCode -verificationExpiry");
+    
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({
+      id: user._id,
+      email: user.email,
+      isVerified: user.isVerified,
+    });
+  } catch (error) {
+    console.error("Get current user error:", error);
+    res.status(500).json({ error: "Failed to fetch user information" });
+  }
 }
