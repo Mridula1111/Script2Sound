@@ -12,6 +12,10 @@ import Planner from "./pages/Planner";
 import Courses from "./pages/Courses";
 import Tasks from "./pages/Tasks";
 import StudySession from "./pages/StudySession";
+import LearningAssistant from "./pages/LearningAssistant";
+import AssessmentForm from "./pages/AssessmentForm";
+import JourneyDetail from "./pages/JourneyDetail";
+import MindfulOverview from "./pages/MindfulOverview";
 
 function App() {
   return (
@@ -102,6 +106,50 @@ function App() {
           <ProtectedRoute>
             <AppLayout>
               <StudySession />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/learning-assistant"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <LearningAssistant />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/learning-assistant/assessment/:curriculumId"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <AssessmentForm />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/learning-assistant/journey/:journeyId"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <JourneyDetail />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/learning-overview"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <MindfulOverview journeys={[]} assessments={[]} student={{}} />
             </AppLayout>
           </ProtectedRoute>
         }

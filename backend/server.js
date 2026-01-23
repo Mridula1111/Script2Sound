@@ -18,11 +18,19 @@ import coursesRoutes from "./routes/courses.routes.js";
 import tasksRoutes from "./routes/tasks.routes.js";
 import plannerRoutes from "./routes/planner.routes.js";
 import studySessionsRoutes from "./routes/study-sessions.routes.js";
+import learningAssistantRoutes from "./routes/learning-assistant.routes.js";
+
 connectDB();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Global request logger (before routes)
+app.use((req, res, next) => {
+  console.log("➡️ Incoming:", req.method, req.path, req.url);
+  next();
+});
 
 app.use("/extract", extractRoutes);
 app.use("/script", scriptRoutes);
@@ -36,10 +44,7 @@ app.use("/courses", coursesRoutes);
 app.use("/tasks", tasksRoutes);
 app.use("/planner", plannerRoutes);
 app.use("/study-sessions", studySessionsRoutes);
-app.use((req, res, next) => {
-  console.log("➡️ Incoming:", req.method, req.url);
-  next();
-});
+app.use("/api/learning", learningAssistantRoutes);
 
 app.listen(5000, () =>
   console.log("🚀 Backend running at http://localhost:5000")

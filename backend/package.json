@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "clear-db": "node config/clearDB.js"
+    "clear-db": "node config/clearDB.js",
+    "seed": "node seeds/curriculumSeed.js"
   },
   "keywords": [],
   "author": "",

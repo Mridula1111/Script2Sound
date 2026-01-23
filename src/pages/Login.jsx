@@ -49,7 +49,7 @@ return (
       <div className="flex justify-center items-center">
         <img
           src={logo}
-          alt="Script2Sound logo"
+          alt="MARS logo"
           className="w-24 h-24 mb-1"
         />
       </div>
@@ -57,7 +57,7 @@ return (
       {/* Top title */}
       <header className="py-6 text-center">
        <h1 className="text-4xl font-bold -mt-6 bg-linear-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md">
-        Script2Sound
+        MARS
       </h1>
 
       </header>

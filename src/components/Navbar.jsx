@@ -36,11 +36,11 @@ export default function Navbar() {
         <Link to="/generate" className="flex items-center gap-2">
           <img
             src="/logo.svg"
-            alt="Script2Sound logo"
+            alt="MARS logo"
             className="w-10 h-10 object-contain"
           />
         <span className="bg-linear-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md font-bold text-lg">
-           Script2Sound
+           MARS
         </span>
         </Link>
         </div>
@@ -87,6 +87,16 @@ export default function Navbar() {
         >
           Planner
           </Link>
+        <Link
+          to="/learning-assistant"
+          className={`block px-4 py-3 rounded-lg transition-all duration-200 ${
+            isActive("/learning-assistant")
+              ? "bg-indigo-600 text-white font-semibold shadow-lg"
+              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+          }`}
+        >
+          Learning Assistant
+        </Link>
       </nav>
 
       {/* User Email Display */}
