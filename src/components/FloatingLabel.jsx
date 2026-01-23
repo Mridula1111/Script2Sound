@@ -46,9 +46,9 @@ export default function FloatingLabel({
     >
       {children}
       <label
-        className={`absolute left-4 transition-all duration-200 pointer-events-none ${
+        className={`absolute left-4 px-1 transition-all duration-200 pointer-events-none ${
           isFloating
-            ? "top-2 text-xs text-indigo-400"
+            ? "top-0 bg-slate-800 text-xs text-indigo-400"
             : "top-1/2 -translate-y-1/2 text-sm text-slate-400"
         }`}
       >

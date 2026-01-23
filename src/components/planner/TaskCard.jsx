@@ -57,7 +57,7 @@ export default function TaskCard({
   if (compact) {
     return (
       <div
-        className="bg-slate-900 p-2 rounded-lg text-xs cursor-pointer hover:bg-slate-700 transition"
+        className="bg-slate-800 bg-gradient-accent p-3 rounded-lg text-xs cursor-pointer hover:bg-slate-700 transition-all duration-200 border border-slate-700"
         style={{
           borderLeft: `4px solid ${task.course?.color || "#6366f1"}`,
         }}
@@ -78,9 +78,9 @@ export default function TaskCard({
 
   return (
     <div
-      className="bg-slate-900 p-4 rounded-xl space-y-3"
+      className="bg-slate-800 bg-gradient-accent p-5 rounded-xl space-y-3 border border-slate-700 hover:shadow-lg transition-all duration-200"
       style={{
-        borderLeft: `4px solid ${task.course?.color || "#6366f1"}`,
+        borderLeft: `5px solid ${task.course?.color || "#6366f1"}`,
       }}
     >
       <div className="flex items-start justify-between">
@@ -130,14 +130,40 @@ export default function TaskCard({
       </div>
 
       {task.linkedNotes?.length > 0 && (
-        <div className="text-xs text-slate-400">
-          📝 {task.linkedNotes.length} note(s) linked
+        <div className="text-xs space-y-1">
+          <div className="text-slate-400">
+            📝 {task.linkedNotes.length} note(s) linked:
+          </div>
+          <div className="space-y-1">
+            {task.linkedNotes.map((note) => (
+              <button
+                key={note._id}
+                onClick={() => navigate("/audio-to-notes", { state: { noteId: note._id } })}
+                className="block text-indigo-400 hover:text-indigo-300 underline text-xs ml-2 transition"
+              >
+                {note.title}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
       {task.linkedAudio?.length > 0 && (
-        <div className="text-xs text-slate-400">
-          🎧 {task.linkedAudio.length} audio(s) linked
+        <div className="text-xs space-y-1">
+          <div className="text-slate-400">
+            🎧 {task.linkedAudio.length} audio(s) linked:
+          </div>
+          <div className="space-y-1">
+            {task.linkedAudio.map((audio) => (
+              <button
+                key={audio._id}
+                onClick={() => navigate("/library", { state: { audioId: audio._id } })}
+                className="block text-indigo-400 hover:text-indigo-300 underline text-xs ml-2 transition"
+              >
+                {audio.title}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -145,7 +171,7 @@ export default function TaskCard({
         {onEdit && (
           <button
             onClick={() => onEdit(task)}
-            className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition"
+            className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition-all duration-200"
           >
             Edit
           </button>
@@ -153,7 +179,7 @@ export default function TaskCard({
         {onDelete && (
           <button
             onClick={() => onDelete(task._id)}
-            className="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded text-sm transition"
+            className="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded text-sm transition-all duration-200"
           >
             Delete
           </button>
@@ -162,7 +188,7 @@ export default function TaskCard({
           onUnschedule && (
             <button
               onClick={() => onUnschedule(task._id)}
-              className="px-3 py-1 bg-orange-600 hover:bg-orange-500 text-white rounded text-sm transition"
+              className="px-3 py-1 bg-orange-600 hover:bg-orange-500 text-white rounded text-sm transition-all duration-200"
             >
               Unschedule
             </button>
@@ -171,7 +197,7 @@ export default function TaskCard({
           onSchedule && (
             <button
               onClick={() => setShowScheduleForm(!showScheduleForm)}
-              className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-sm transition"
+              className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-sm transition-all duration-200"
             >
               Schedule
             </button>
@@ -180,9 +206,9 @@ export default function TaskCard({
       </div>
 
       {showScheduleForm && (
-        <form onSubmit={handleScheduleSubmit} className="space-y-2 pt-2 border-t border-slate-700">
+        <form onSubmit={handleScheduleSubmit} className="space-y-2 pt-3 border-t border-slate-700">
           <div>
-            <label className="block text-slate-300 text-xs mb-1">
+            <label className="block text-slate-300 text-xs mb-1 font-medium">
               Start Time
             </label>
             <input
@@ -192,11 +218,11 @@ export default function TaskCard({
               onChange={(e) =>
                 setScheduleData({ ...scheduleData, startTime: e.target.value })
               }
-              className="w-full px-2 py-1 rounded bg-slate-800 border border-slate-700 text-white text-sm"
+              className="w-full px-2 py-1 rounded bg-slate-900 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
             />
           </div>
           <div>
-            <label className="block text-slate-300 text-xs mb-1">
+            <label className="block text-slate-300 text-xs mb-1 font-medium">
               End Time
             </label>
             <input
@@ -206,13 +232,13 @@ export default function TaskCard({
               onChange={(e) =>
                 setScheduleData({ ...scheduleData, endTime: e.target.value })
               }
-              className="w-full px-2 py-1 rounded bg-slate-800 border border-slate-700 text-white text-sm"
+              className="w-full px-2 py-1 rounded bg-slate-900 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
             />
           </div>
           <div className="flex gap-2">
             <button
               type="submit"
-              className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-sm transition"
+              className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-sm transition-all duration-200"
             >
               Save
             </button>
@@ -222,7 +248,7 @@ export default function TaskCard({
                 setShowScheduleForm(false);
                 setScheduleData({ startTime: "", endTime: "" });
               }}
-              className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition"
+              className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition-all duration-200"
             >
               Cancel
             </button>

@@ -99,7 +99,7 @@ export default function Library() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent">
             📚 My Library
         </h1>
           <p className="text-slate-400">
@@ -115,7 +115,7 @@ export default function Library() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column: Notes → Audio */}
             <div className="space-y-4">
-              <div className="bg-slate-800 rounded-lg p-4 border-b-2 border-indigo-500">
+              <div className="bg-slate-800 bg-gradient-accent rounded-lg p-4 border-b-2 border-indigo-500 border">
                 <h2 className="text-xl font-bold text-white">
                   🎧 Notes → Audio
                 </h2>
@@ -126,14 +126,14 @@ export default function Library() {
               
               <div className="space-y-3 max-h-[calc(100vh-250px)] overflow-y-auto">
                 {audios.length === 0 ? (
-                  <div className="bg-slate-800 p-8 rounded-xl text-center">
+                  <div className="bg-slate-800 bg-gradient-accent p-8 rounded-xl text-center border border-slate-700">
                     <p className="text-slate-400">No audio generated yet.</p>
                   </div>
                 ) : (
                   audios.map((audio) => (
               <div
                 key={audio._id}
-                      className="bg-slate-800 p-5 rounded-xl shadow space-y-3"
+                      className="bg-slate-800 bg-gradient-accent p-5 rounded-xl shadow space-y-3 border border-slate-700 hover:shadow-lg transition-all duration-200"
               >
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-white text-sm">
@@ -141,7 +141,7 @@ export default function Library() {
                 </h3>
                 <button 
                           onClick={() => handleDeleteAudio(audio._id)}
-                          className="text-xs text-red-400 hover:text-red-600 transition">
+                          className="text-xs text-red-400 hover:text-red-300 transition-colors">
                       Delete
                 </button>
                       </div>
@@ -161,19 +161,19 @@ export default function Library() {
                       <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => navigate(`/questions/${audio._id}`)}
-                          className="text-xs text-indigo-400 hover:underline"
+                          className="text-xs text-indigo-400 hover:text-indigo-300 underline transition-colors"
                 >
                   📘 Practice Questions
                 </button>
                         <button
                           onClick={() => handleCreateTaskFromAudio(audio._id)}
-                          className="text-xs text-green-400 hover:underline"
+                          className="text-xs text-green-400 hover:text-green-300 underline transition-colors"
                         >
                           ➕ Create Task
                         </button>
                         <button
                           onClick={() => setShowTaskLinker({ type: "audio", id: audio._id })}
-                          className="text-xs text-purple-400 hover:underline"
+                          className="text-xs text-purple-400 hover:text-purple-300 underline transition-colors"
                         >
                           🔗 Link to Task
                         </button>
@@ -186,7 +186,7 @@ export default function Library() {
 
             {/* Right Column: Audio → Notes */}
             <div className="space-y-4">
-              <div className="bg-slate-800 rounded-lg p-4 border-b-2 border-pink-500">
+              <div className="bg-slate-800 bg-gradient-accent rounded-lg p-4 border-b-2 border-pink-500 border">
                 <h2 className="text-xl font-bold text-white">
                   📝 Audio → Notes
                 </h2>
@@ -197,14 +197,14 @@ export default function Library() {
               
               <div className="space-y-3 max-h-[calc(100vh-250px)] overflow-y-auto">
                 {notes.length === 0 ? (
-                  <div className="bg-slate-800 p-8 rounded-xl text-center">
+                  <div className="bg-slate-800 bg-gradient-accent p-8 rounded-xl text-center border border-slate-700">
                     <p className="text-slate-400">No notes generated yet.</p>
                   </div>
                 ) : (
                   notes.map((note) => (
                     <div
                       key={note._id}
-                      className="bg-slate-800 p-5 rounded-xl shadow space-y-3"
+                      className="bg-slate-800 bg-gradient-accent p-5 rounded-xl shadow space-y-3 border border-slate-700 hover:shadow-lg transition-all duration-200"
                     >
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-white text-sm">
@@ -212,7 +212,7 @@ export default function Library() {
                         </h3>
                         <button 
                           onClick={() => handleDeleteNote(note._id)}
-                          className="text-xs text-red-400 hover:text-red-600 transition">
+                          className="text-xs text-red-400 hover:text-red-300 transition-colors">
                           Delete
                         </button>
                       </div>
@@ -231,20 +231,20 @@ export default function Library() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleDownloadNote(note.filename, note.title)}
-                          className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition text-sm"
+                          className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm shadow-lg"
                         >
                           ⬇️ Download PDF
                         </button>
                         <button
                           onClick={() => handleCreateTaskFromNote(note._id)}
-                          className="px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition text-sm"
+                          className="px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-all duration-200 text-sm shadow-lg"
                           title="Create Task"
                         >
                           ➕
                         </button>
                         <button
                           onClick={() => setShowTaskLinker({ type: "note", id: note._id })}
-                          className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition text-sm"
+                          className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-all duration-200 text-sm shadow-lg"
                           title="Link to Task"
                         >
                           🔗
@@ -260,8 +260,8 @@ export default function Library() {
 
         {/* Task Linker Modal */}
         {showTaskLinker.type && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-slate-800 rounded-xl max-w-md w-full mx-4">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-slate-800 bg-gradient-accent rounded-xl max-w-md w-full mx-4 border border-slate-700 shadow-xl">
               <TaskLinker
                 noteId={showTaskLinker.type === "note" ? showTaskLinker.id : null}
                 audioId={showTaskLinker.type === "audio" ? showTaskLinker.id : null}

@@ -43,8 +43,8 @@ export default function DailyView({ data, onRefresh }) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-slate-800 p-6 rounded-xl">
-        <h2 className="text-xl font-semibold text-white mb-4">
+      <div className="bg-slate-800 bg-gradient-accent p-6 rounded-xl border border-slate-700">
+        <h2 className="text-2xl font-bold text-white mb-6">
           {new Date(data.date).toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",
@@ -61,7 +61,7 @@ export default function DailyView({ data, onRefresh }) {
               .sort()
               .map((time) => (
                 <div key={time} className="space-y-2">
-                  <h3 className="text-slate-300 font-medium">{time}</h3>
+                  <h3 className="text-slate-300 font-semibold text-sm uppercase tracking-wide">{time}</h3>
                   <div className="space-y-2 ml-4">
                     {tasksByTime[time].map((task) => (
                       <TaskCard

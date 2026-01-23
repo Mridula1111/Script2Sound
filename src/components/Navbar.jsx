@@ -30,9 +30,9 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-700 flex flex-col h-screen">
+    <aside className="w-64 bg-gradient-accent border-r border-slate-800 flex flex-col h-screen">
       {/* Logo */}
-      <div className="p-6 border-b border-slate-700">
+      <div className="p-6 border-b border-slate-800 bg-gradient-dark-vertical">
         <Link to="/generate" className="flex items-center gap-2">
           <img
             src="/logo.svg"
@@ -49,40 +49,40 @@ export default function Navbar() {
       <nav className="flex-1 p-4 space-y-2">
         <Link
           to="/generate"
-          className={`block px-4 py-3 rounded-lg transition-colors ${
+          className={`block px-4 py-3 rounded-lg transition-all duration-200 ${
             isActive("/generate")
-              ? "bg-slate-700 text-white font-semibold"
-              : "text-slate-300 hover:bg-slate-800 hover:text-white"
+              ? "bg-indigo-600 text-white font-semibold shadow-lg"
+              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
           }`}
         >
           Notes → Audio
         </Link>
         <Link
           to="/audio-to-notes"
-          className={`block px-4 py-3 rounded-lg transition-colors ${
+          className={`block px-4 py-3 rounded-lg transition-all duration-200 ${
             isActive("/audio-to-notes")
-              ? "bg-slate-700 text-white font-semibold"
-              : "text-slate-300 hover:bg-slate-800 hover:text-white"
+              ? "bg-indigo-600 text-white font-semibold shadow-lg"
+              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
           }`}
         >
           Audio → Notes
         </Link>
           <Link
             to="/library"
-          className={`block px-4 py-3 rounded-lg transition-colors ${
+          className={`block px-4 py-3 rounded-lg transition-all duration-200 ${
             isActive("/library")
-              ? "bg-slate-700 text-white font-semibold"
-              : "text-slate-300 hover:bg-slate-800 hover:text-white"
+              ? "bg-indigo-600 text-white font-semibold shadow-lg"
+              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
           }`}
         >
           Library
         </Link>
         <Link
           to="/planner"
-          className={`block px-4 py-3 rounded-lg transition-colors ${
+          className={`block px-4 py-3 rounded-lg transition-all duration-200 ${
             isActive("/planner") || isActive("/courses") || isActive("/tasks") || isActive("/study-session")
-              ? "bg-slate-700 text-white font-semibold"
-              : "text-slate-300 hover:bg-slate-800 hover:text-white"
+              ? "bg-indigo-600 text-white font-semibold shadow-lg"
+              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
           }`}
         >
           Planner
@@ -90,14 +90,14 @@ export default function Navbar() {
       </nav>
 
       {/* User Email Display */}
-      <div className="p-4 border-t border-slate-700">
+      <div className="p-4 border-t border-slate-800 bg-gradient-dark-vertical">
         <div className="text-xs text-slate-400 px-2 py-1 mb-2">
           <UserEmail />
         </div>
       </div>
 
       {/* Logout Button */}
-      <div className="p-4 border-t border-slate-700">
+      <div className="p-4 border-t border-slate-800 bg-gradient-dark-vertical">
           <button
             onClick={handleLogout}
           className="w-full bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition"

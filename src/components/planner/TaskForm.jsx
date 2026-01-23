@@ -79,11 +79,11 @@ export default function TaskForm({ task, onSubmit, onCancel }) {
   };
 
   return (
-    <div className="bg-slate-800 p-6 rounded-xl space-y-3">
+    <div className="bg-slate-800 bg-gradient-accent p-6 rounded-xl space-y-4 border border-slate-700 shadow-lg">
       <h2 className="text-xl font-semibold text-white">
         {task ? "Edit Task" : "New Task"}
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <FloatingLabel label="Title" required>
           <input
             type="text"
@@ -92,7 +92,7 @@ export default function TaskForm({ task, onSubmit, onCancel }) {
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
-            className="w-full px-4 pt-6 pb-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 pt-6 pb-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
           />
         </FloatingLabel>
 
@@ -103,7 +103,7 @@ export default function TaskForm({ task, onSubmit, onCancel }) {
               onChange={(e) =>
                 setFormData({ ...formData, type: e.target.value })
               }
-              className="w-full px-3 pt-6 pb-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm appearance-none"
+              className="w-full px-3 pt-6 pb-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm appearance-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
             >
               <option value="assignment">Assignment</option>
               <option value="exam">Exam</option>
@@ -117,7 +117,7 @@ export default function TaskForm({ task, onSubmit, onCancel }) {
               onChange={(e) =>
                 setFormData({ ...formData, priority: e.target.value })
               }
-              className="w-full px-3 pt-6 pb-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm appearance-none"
+              className="w-full px-3 pt-6 pb-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm appearance-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
             >
               <option value="low">Low</option>
               <option value="medium">Medium</option>
@@ -138,7 +138,7 @@ export default function TaskForm({ task, onSubmit, onCancel }) {
                   estimatedHours: parseFloat(e.target.value) || 1,
                 })
               }
-              className="w-full px-3 pt-6 pb-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm"
+              className="w-full px-3 pt-6 pb-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
             />
           </FloatingLabel>
         </div>
@@ -150,19 +150,19 @@ export default function TaskForm({ task, onSubmit, onCancel }) {
             onChange={(e) =>
               setFormData({ ...formData, deadline: e.target.value })
             }
-            className="w-full px-4 pt-6 pb-2 rounded-lg bg-slate-900 border border-slate-700 text-white"
+            className="w-full px-4 pt-6 pb-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
           />
         </FloatingLabel>
 
         <div>
-          <label className="block text-slate-300 text-sm mb-1">
+          <label className="block text-slate-300 text-sm mb-2 font-medium">
             Subtasks
           </label>
           <div className="space-y-2">
             {formData.subtasks.map((subtask, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 bg-slate-900 p-2 rounded"
+                className="flex items-center gap-2 bg-slate-900 p-3 rounded-lg border border-slate-700"
               >
                 <input
                   type="checkbox"
@@ -172,11 +172,11 @@ export default function TaskForm({ task, onSubmit, onCancel }) {
                     updated[index].completed = e.target.checked;
                     setFormData({ ...formData, subtasks: updated });
                   }}
-                  className="rounded"
+                  className="rounded accent-indigo-500"
                 />
                 <span
                   className={`flex-1 text-white ${
-                    subtask.completed ? "line-through text-slate-400" : ""
+                    subtask.completed ? "line-through text-slate-500" : ""
                   }`}
                 >
                   {subtask.title}
@@ -184,7 +184,7 @@ export default function TaskForm({ task, onSubmit, onCancel }) {
                 <button
                   type="button"
                   onClick={() => removeSubtask(index)}
-                  className="text-red-400 hover:text-red-600"
+                  className="text-red-400 hover:text-red-300 transition"
                 >
                   ×
                 </button>
@@ -202,12 +202,12 @@ export default function TaskForm({ task, onSubmit, onCancel }) {
                   }
                 }}
                 placeholder="Add subtask..."
-                className="flex-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm"
+                className="flex-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
               />
               <button
                 type="button"
                 onClick={addSubtask}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition"
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-all duration-200"
               >
                 Add
               </button>
@@ -218,14 +218,14 @@ export default function TaskForm({ task, onSubmit, onCancel }) {
         <div className="flex gap-3 pt-2">
           <button
             type="submit"
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg transition"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg transition-all duration-200 shadow-lg font-medium"
           >
             {task ? "Update" : "Create"}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg transition"
+            className="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg transition-all duration-200"
           >
             Cancel
           </button>
