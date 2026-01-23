@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import logo from "../assets/logo.svg";
+import logo from "/logo.svg";
 
 function getPasswordStrength(password) {
   let score = 0;

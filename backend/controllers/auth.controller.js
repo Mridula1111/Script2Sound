@@ -72,9 +72,6 @@ export async function loginUser(req, res) {
   try {
     const { email, password } = req.body;
 
-    console.log("LOGIN EMAIL (raw):", email);
-    console.log("LOGIN PASSWORD (raw):", password);
-
     const emailNormalized = email.trim().toLowerCase();
     console.log("LOGIN EMAIL (normalized):", emailNormalized);
 

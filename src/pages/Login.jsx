@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.svg";
+import logo from "/logo.svg";
 import { Link } from "react-router-dom";
 
 export default function Login() {
