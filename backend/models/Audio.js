@@ -36,6 +36,13 @@ const audioSchema = new mongoose.Schema(
       enum: ["hindi", "tamil", "telugu", "kannada", "malayalam", "marathi", "gujarati"],
       default: null,
     },
+
+    linkedTasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import UploadNotes from "../components/UploadNotes";
 import { uploadNotes, generateScript, generateAudio } from "../services/api";
+import FloatingLabel from "../components/FloatingLabel";
 
 const INDIAN_LANGUAGES = [
   { code: "hindi", name: "Hindi", nativeName: "हिन्दी" },
@@ -125,20 +126,19 @@ export default function GenerateScript() {
             {/* Language dropdown - show only when native mode is selected */}
             {languageMode === "native" && (
               <div>
-                <label className="block text-gray-300 text-sm mb-2">
-                  Select Language
-                </label>
-                <select
-                  value={selectedLanguage}
-                  onChange={(e) => setSelectedLanguage(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  {INDIAN_LANGUAGES.map((lang) => (
-                    <option key={lang.code} value={lang.code}>
-                      {lang.nativeName} - {lang.name}
-                    </option>
-                  ))}
-                </select>
+                <FloatingLabel label="Select Language">
+                  <select
+                    value={selectedLanguage}
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                    className="w-full px-4 pt-6 pb-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none"
+                  >
+                    {INDIAN_LANGUAGES.map((lang) => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.nativeName} - {lang.name}
+                      </option>
+                    ))}
+                  </select>
+                </FloatingLabel>
                 <p className="text-gray-400 text-xs mt-2">
                   ℹ️ Technical terms will be retained in English for clarity
                 </p>
@@ -146,16 +146,17 @@ export default function GenerateScript() {
             )}
           </div>
 
-          <input
-            type="text"
-            placeholder="Audio name (optional)"
-            value={audioName}
-            onChange={(e) => setAudioName(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg
-                      bg-gray-900 border border-gray-700
-                      text-white placeholder-gray-400
-                      focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+          <FloatingLabel label="Audio name (optional)">
+            <input
+              type="text"
+              value={audioName}
+              onChange={(e) => setAudioName(e.target.value)}
+              className="w-full px-4 pt-6 pb-2 rounded-lg
+                        bg-gray-900 border border-gray-700
+                        text-white
+                        focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </FloatingLabel>
 
           <button
             onClick={handleGenerateAudio}

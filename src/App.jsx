@@ -8,6 +8,10 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Library from "./pages/Library";
 import Questions from "./pages/Questions";
+import Planner from "./pages/Planner";
+import Courses from "./pages/Courses";
+import Tasks from "./pages/Tasks";
+import StudySession from "./pages/StudySession";
 
 function App() {
   return (
@@ -54,6 +58,50 @@ function App() {
           <ProtectedRoute>
             <AppLayout>
               <Questions />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/planner"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Planner />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/courses"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Courses />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tasks"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Tasks />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/study-session"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <StudySession />
             </AppLayout>
           </ProtectedRoute>
         }

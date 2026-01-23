@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import logo from "../assets/logo.svg";
+import FloatingLabel from "../components/FloatingLabel";
 
 function getPasswordStrength(password) {
   let score = 0;
@@ -95,19 +96,23 @@ export default function Register() {
 
           {step === "register" && (
             <div className="space-y-4">
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full p-3 rounded bg-slate-700 text-white placeholder-slate-400"
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <FloatingLabel label="Email" required>
+                <input
+                  type="email"
+                  value={email}
+                  className="w-full px-4 pt-6 pb-2 rounded bg-slate-700 text-white"
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </FloatingLabel>
 
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full p-3 rounded bg-slate-700 text-white placeholder-slate-400"
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <FloatingLabel label="Password" required>
+                <input
+                  type="password"
+                  value={password}
+                  className="w-full px-4 pt-6 pb-2 rounded bg-slate-700 text-white"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </FloatingLabel>
 
               {password && (
                 <p className={`text-sm ${getPasswordStrength(password).color}`}>
@@ -152,11 +157,14 @@ export default function Register() {
                 Enter the 6-digit code sent to your email
               </p>
 
-              <input
-                placeholder="Verification Code"
-                className="w-full p-3 rounded bg-slate-700 text-white placeholder-slate-400"
-                onChange={(e) => setCode(e.target.value)}
-              />
+              <FloatingLabel label="Verification Code" required>
+                <input
+                  type="text"
+                  value={code}
+                  className="w-full px-4 pt-6 pb-2 rounded bg-slate-700 text-white"
+                  onChange={(e) => setCode(e.target.value)}
+                />
+              </FloatingLabel>
 
               <button
                 onClick={handleVerify}

@@ -2,22 +2,30 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLibrary, fetchAudio, getNotesLibrary, fetchNotePDF, deleteNote } from "../services/api";
 import { deleteAudio } from "../services/api";
+import { createTaskFromNote, createTaskFromAudio, linkNoteToTask, linkAudioToTask } from "../services/planner-api";
+import TaskLinker from "../components/planner/TaskLinker";
 
 export default function Library() {
   const [audios, setAudios] = useState([]);
   const [notes, setNotes] = useState([]);
   const [audioUrls, setAudioUrls] = useState({});
   const [loading, setLoading] = useState(true);
+  const [showTaskLinker, setShowTaskLinker] = useState({ type: null, id: null });
   const navigate = useNavigate();
 
-  // Fetch library once
-  useEffect(() => {
+  const loadData = () => {
+    setLoading(true);
     Promise.all([getLibrary(), getNotesLibrary()])
       .then(([audioData, notesData]) => {
         setAudios(audioData);
         setNotes(notesData);
       })
       .finally(() => setLoading(false));
+  };
+
+  // Fetch library once
+  useEffect(() => {
+    loadData();
   }, []);
 
   // Load audio blob when needed
@@ -61,16 +69,43 @@ export default function Library() {
     link.click();
   };
 
+  const handleCreateTaskFromNote = async (noteId) => {
+    try {
+      await createTaskFromNote(noteId);
+      alert("Task created successfully! Navigate to Tasks to view it.");
+      navigate("/tasks");
+    } catch (error) {
+      console.error("Failed to create task from note:", error);
+      alert(error.message || "Failed to create task");
+    }
+  };
+
+  const handleCreateTaskFromAudio = async (audioId) => {
+    try {
+      await createTaskFromAudio(audioId);
+      alert("Task created successfully! Navigate to Tasks to view it.");
+      navigate("/tasks");
+    } catch (error) {
+      console.error("Failed to create task from audio:", error);
+      alert(error.message || "Failed to create task");
+    }
+  };
+
+  const handleLinkSuccess = () => {
+    setShowTaskLinker({ type: null, id: null });
+    loadData();
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-white">
             📚 My Library
-          </h1>
+        </h1>
           <p className="text-slate-400">
             All your generated content in one place
-          </p>
-        </div>
+        </p>
+      </div>
         
         {loading ? (
           <p className="text-center text-slate-400 py-10">
@@ -96,39 +131,53 @@ export default function Library() {
                   </div>
                 ) : (
                   audios.map((audio) => (
-                    <div
-                      key={audio._id}
+              <div
+                key={audio._id}
                       className="bg-slate-800 p-5 rounded-xl shadow space-y-3"
-                    >
+              >
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-white text-sm">
-                          {audio.title || audio.filename}
-                        </h3>
-                        <button 
+                  {audio.title || audio.filename}
+                </h3>
+                <button 
                           onClick={() => handleDeleteAudio(audio._id)}
                           className="text-xs text-red-400 hover:text-red-600 transition">
-                          Delete
-                        </button>
+                      Delete
+                </button>
                       </div>
 
-                      <audio
-                        controls
+                <audio
+                  controls
                         className="w-full h-10"
-                        src={audioUrls[audio.filename]}
-                      />
+                  src={audioUrls[audio.filename]}
+                />
 
-                      {!audioUrls[audio.filename] && (
+                {!audioUrls[audio.filename] && (
                         <p className="text-xs text-slate-400 text-center">
-                          ▶ Click play to load audio
-                        </p>
-                      )}
+                    ▶ Click play to load audio
+                  </p>
+                )}
 
-                      <button
-                        onClick={() => navigate(`/questions/${audio._id}`)}
-                        className="text-xs text-indigo-400 hover:underline"
-                      >
-                        📘 Practice Questions
-                      </button>
+                      <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => navigate(`/questions/${audio._id}`)}
+                          className="text-xs text-indigo-400 hover:underline"
+                >
+                  📘 Practice Questions
+                </button>
+                        <button
+                          onClick={() => handleCreateTaskFromAudio(audio._id)}
+                          className="text-xs text-green-400 hover:underline"
+                        >
+                          ➕ Create Task
+                        </button>
+                        <button
+                          onClick={() => setShowTaskLinker({ type: "audio", id: audio._id })}
+                          className="text-xs text-purple-400 hover:underline"
+                        >
+                          🔗 Link to Task
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -179,12 +228,28 @@ export default function Library() {
                         )}
                       </div>
 
-                      <button
-                        onClick={() => handleDownloadNote(note.filename, note.title)}
-                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition text-sm"
-                      >
-                        ⬇️ Download PDF
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleDownloadNote(note.filename, note.title)}
+                          className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition text-sm"
+                        >
+                          ⬇️ Download PDF
+                        </button>
+                        <button
+                          onClick={() => handleCreateTaskFromNote(note._id)}
+                          className="px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition text-sm"
+                          title="Create Task"
+                        >
+                          ➕
+                        </button>
+                        <button
+                          onClick={() => setShowTaskLinker({ type: "note", id: note._id })}
+                          className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition text-sm"
+                          title="Link to Task"
+                        >
+                          🔗
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -192,6 +257,20 @@ export default function Library() {
             </div>
           </div>
         )}
-      </div>
+
+        {/* Task Linker Modal */}
+        {showTaskLinker.type && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-slate-800 rounded-xl max-w-md w-full mx-4">
+              <TaskLinker
+                noteId={showTaskLinker.type === "note" ? showTaskLinker.id : null}
+                audioId={showTaskLinker.type === "audio" ? showTaskLinker.id : null}
+                onClose={() => setShowTaskLinker({ type: null, id: null })}
+                onSuccess={handleLinkSuccess}
+              />
+              </div>
+          </div>
+        )}
+    </div>
   );
 }

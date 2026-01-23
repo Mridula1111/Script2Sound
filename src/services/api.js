@@ -202,3 +202,20 @@ export const deleteNote = async (id) => {
 
   return res.json();
 };
+
+export const getUserEmail = async () => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_URL}/auth/me`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch user information");
+  }
+
+  return res.json();
+};

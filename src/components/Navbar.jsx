@@ -1,4 +1,22 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getUserEmail } from "../services/api";
+
+function UserEmail() {
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    getUserEmail()
+      .then((userData) => {
+        setEmail(userData.email || "");
+      })
+      .catch(() => {
+        setEmail("");
+      });
+  }, []);
+
+  return email ? <span className="text-slate-300">{email}</span> : null;
+}
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -21,11 +39,11 @@ export default function Navbar() {
             alt="Script2Sound logo"
             className="w-10 h-10 object-contain"
           />
-          <span className="bg-linear-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md font-bold text-lg">
-            Script2Sound
-          </span>
+        <span className="bg-linear-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md font-bold text-lg">
+           Script2Sound
+        </span>
         </Link>
-      </div>
+        </div>
 
       {/* Navigation Tabs */}
       <nav className="flex-1 p-4 space-y-2">
@@ -49,8 +67,8 @@ export default function Navbar() {
         >
           Audio → Notes
         </Link>
-        <Link
-          to="/library"
+          <Link
+            to="/library"
           className={`block px-4 py-3 rounded-lg transition-colors ${
             isActive("/library")
               ? "bg-slate-700 text-white font-semibold"
@@ -59,17 +77,34 @@ export default function Navbar() {
         >
           Library
         </Link>
+        <Link
+          to="/planner"
+          className={`block px-4 py-3 rounded-lg transition-colors ${
+            isActive("/planner") || isActive("/courses") || isActive("/tasks") || isActive("/study-session")
+              ? "bg-slate-700 text-white font-semibold"
+              : "text-slate-300 hover:bg-slate-800 hover:text-white"
+          }`}
+        >
+          Planner
+          </Link>
       </nav>
+
+      {/* User Email Display */}
+      <div className="p-4 border-t border-slate-700">
+        <div className="text-xs text-slate-400 px-2 py-1 mb-2">
+          <UserEmail />
+        </div>
+      </div>
 
       {/* Logout Button */}
       <div className="p-4 border-t border-slate-700">
-        <button
-          onClick={handleLogout}
+          <button
+            onClick={handleLogout}
           className="w-full bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition"
-        >
-          Logout
-        </button>
-      </div>
+          >
+            Logout
+          </button>
+        </div>
     </aside>
   );
 }

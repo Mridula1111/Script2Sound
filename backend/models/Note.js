@@ -44,6 +44,13 @@ const noteSchema = new mongoose.Schema(
       enum: ["pdf", "ppt"],
       default: "pdf",
     },
+
+    linkedTasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
+      },
+    ],
   },
   { timestamps: true }
 );

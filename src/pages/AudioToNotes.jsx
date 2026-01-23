@@ -1,6 +1,7 @@
 import { useState } from "react";
 import UploadAudio from "../components/UploadAudio";
 import { convertAudioToNotes } from "../services/api";
+import FloatingLabel from "../components/FloatingLabel";
 
 export default function AudioToNotes() {
   const [file, setFile] = useState(null);
@@ -53,16 +54,17 @@ export default function AudioToNotes() {
           <div className="bg-gray-800 p-6 rounded-xl shadow space-y-6">
             <UploadAudio onUpload={setFile} />
 
-            <input
-              type="text"
-              placeholder="Notes title (optional)"
-              value={noteName}
-              onChange={(e) => setNoteName(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg
-                        bg-gray-900 border border-gray-700
-                        text-white placeholder-gray-400
-                        focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+            <FloatingLabel label="Notes title (optional)">
+              <input
+                type="text"
+                value={noteName}
+                onChange={(e) => setNoteName(e.target.value)}
+                className="w-full px-4 pt-6 pb-2 rounded-lg
+                          bg-gray-900 border border-gray-700
+                          text-white
+                          focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </FloatingLabel>
 
             <button
               onClick={handleConvertAudio}

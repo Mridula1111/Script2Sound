@@ -14,6 +14,10 @@ import audioToNotesRoutes from "./routes/audio-to-notes.routes.js";
 import notesRoutes from "./routes/notes.routes.js";
 
 import questionsRoutes from "./routes/questions.routes.js";
+import coursesRoutes from "./routes/courses.routes.js";
+import tasksRoutes from "./routes/tasks.routes.js";
+import plannerRoutes from "./routes/planner.routes.js";
+import studySessionsRoutes from "./routes/study-sessions.routes.js";
 connectDB();
 
 const app = express();
@@ -28,6 +32,10 @@ app.use("/audio", audioRoutes);
 app.use("/audio-to-notes", audioToNotesRoutes);
 app.use("/notes", notesRoutes);
 app.use("/questions",questionsRoutes);
+app.use("/courses", coursesRoutes);
+app.use("/tasks", tasksRoutes);
+app.use("/planner", plannerRoutes);
+app.use("/study-sessions", studySessionsRoutes);
 app.use((req, res, next) => {
   console.log("➡️ Incoming:", req.method, req.url);
   next();
